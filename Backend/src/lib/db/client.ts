@@ -1,7 +1,13 @@
-import { PrismaClient } from "../../../prisma/generate";
+import { PrismaClient } from "../../generated/prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 // Create a singleton :-
+
+const connectionString = `${process.env.DATABASE_URL}`;
+const adapter = new PrismaPg({
+  connectionString,
+});
 export const prismaSingleton = () => {
-  return new PrismaClient();
+  return new PrismaClient({ adapter });
 };
 
 type prismaSingletonType = ReturnType<typeof prismaSingleton>;
