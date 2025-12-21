@@ -5,22 +5,127 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+   provider = "prisma-client"
+   output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+   provider = "postgresql"
 }
 
 model User {
-   id  String @id @default(uuid())
-   firstName String 
-   lastName String
-   email String
-   phone String?
-   password String // Hashed
-   createdAt DateTime @default(now())
-   updatdAt DateTime @default(now())
+   id          String   @id @default(uuid())
+   firstName   String
+   lastName    String
+   email       String
+   phone       String?
+   password    String // Hashed
+   createdAt   DateTime @default(now())
+   updatdAt    DateTime @default(now())
+   roleId      Int
+   RoleDetails Role     @relation(fields: [roleId], references: [id])
+
+   Problems               Problem[]
+   Submissions            Submission[]
+   trackTestCaseResponses TrackTestCaseResponse[]
 }
 
+model Role {
+   id        Int      @id @default(autoincrement())
+   roleName  String
+   createdAt DateTime @default(now())
+   updatdAt  DateTime @default(now())
+   Users     User[]
+}
+
+// Problems Schema :-
+model Problem {
+   id        Int       @id @default(autoincrement())
+   statement String
+   level     LevelEnum
+   createdBy String
+   createdAt DateTime  @default(now())
+   updatedAt DateTime  @default(now())
+   // Referencing
+
+   creatorDetails User @relation(fields: [createdBy], references: [id])
+
+   Submissions    Submission[]
+   inputTestCases InputTestCases[]
+}
+
+model Submission {
+   id        Int            @id @default(autoincrement())
+   userId    String
+   problemId Int
+   status    SubmissionEnum
+   metaData  Json?
+   createdAt DateTime       @default(now())
+   updatedAt DateTime       @default(now())
+
+   // Referencing 
+   userDetails    User    @relation(fields: [userId], references: [id])
+   problemDetails Problem @relation(fields: [problemId], references: [id])
+}
+
+// TestCases Schema :-
+model InputTestCases {
+   id        Int      @id @default(autoincrement())
+   problemId Int
+   testCase  String
+   createdAt DateTime @default(now())
+   updatedAt DateTime @default(now())
+
+   // References 
+   problemDetails         Problem                 @relation(fields: [problemId], references: [id])
+   outputTestCases        OutputTestCases[]
+   trackTestCaseResponses TrackTestCaseResponse[]
+}
+
+model OutputTestCases {
+   id          Int      @id @default(autoincrement())
+   inputTestId Int
+   testCase    String
+   createdAt   DateTime @default(now())
+   updatedAt   DateTime @default(now())
+
+   // References 
+   InputTestCase InputTestCases @relation(fields: [inputTestId], references: [id])
+}
+
+// Track User's individual Test Case Output :-
+model TrackTestCaseResponse {
+   id          Int            @id @default(autoincrement())
+   inputTestId Int
+   userId      String
+   status      SubmissionEnum
+   createdAt   DateTime       @default(now())
+   updatedAt   DateTime       @default(now())
+
+   // References 
+   InputTestCase InputTestCases @relation(fields: [inputTestId], references: [id])
+   UserDetails   User           @relation(fields: [userId], references: [id])
+}
+
+
+
+// Schema for Contest :-
+
+// TODO :-
+
+
+// Enum Specifying
+
+enum LevelEnum {
+   Low
+   Medium
+   High
+   God
+}
+
+enum SubmissionEnum {
+   Pending
+   Success
+   Failed
+   Processing
+}
