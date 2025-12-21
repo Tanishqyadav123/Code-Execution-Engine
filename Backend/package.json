@@ -6,7 +6,8 @@
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/index.js",
-    "dev": "nodemon --watch src --ext ts,js,json --exec tsx src/index.ts"
+    "dev": "nodemon --watch src --ext ts,js,json --exec tsx src/index.ts",
+    "db:seed": "npx tsx src/prisma/seeder.ts"
   },
   "keywords": [],
   "author": "",
@@ -28,7 +29,7 @@
     "@types/dotenv": "^6.1.1",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^24.9.0",
+    "@types/node": "^24.10.4",
     "jsonwebtoken": "^9.0.2",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",

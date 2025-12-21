@@ -12,6 +12,7 @@ export const signUpValidation = z
     email: z.email({ error: "Email is invalid" }),
     password: z.string().nonempty({ error: "Password is required" }),
     confirmPassword: z.string().nonempty({ error: "Password is required" }),
+    roleId: z.number().positive(),
   })
   .refine(({ password, confirmPassword }) => password === confirmPassword, {
     error: "Passwords are not matching",

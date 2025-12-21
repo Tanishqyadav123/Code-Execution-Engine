@@ -21,10 +21,19 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { signUpUserService } from "../services/auth.service";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { Select } from "@/components/ui/select";
+import { CommonSelect } from "./Select.Common";
+import { useEffect, useState } from "react";
+import { roleDropDownResponseType } from "../interface/common.interface";
+import { getAllRolesService } from "../services/common.service";
 
 export type signUpFormType = z.infer<typeof signUpValidation>;
 function SignUpForm() {
   const router = useRouter();
+
+  const [roleDropDown, setRoleDropDown] = useState<roleDropDownResponseType[]>(
+    []
+  );
 
   const form = useForm<signUpFormType>({
     resolver: zodResolver(signUpValidation),
@@ -35,11 +44,13 @@ function SignUpForm() {
       password: "",
       email: "",
       confirmPassword: "",
+      roleId: 0,
     },
   });
 
   const onSignUpSubmit = async (data: signUpFormType) => {
     try {
+      console.log("Submit is getting called ");
       console.log(data);
       const response = await signUpUserService(data);
       if (response.success) {
@@ -53,6 +64,20 @@ function SignUpForm() {
     }
   };
 
+  const getRolesDropDownData = async () => {
+    try {
+      const response = await getAllRolesService();
+
+      if (response.success && response.data && response.data.length) {
+        setRoleDropDown(response.data);
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+  useEffect(() => {
+    getRolesDropDownData();
+  }, []);
   const isLoading = form.formState.isSubmitting;
   return (
     <div className="min-w-screen min-h-screen flex items-center justify-center ">
@@ -142,6 +167,38 @@ function SignUpForm() {
                   }}
                 />
               </div>
+
+              {/*  Add the select Option for role Id */}
+              <div className="grid gap-2">
+                <Controller
+                  name="roleId"
+                  control={form.control}
+                  render={({ field, fieldState }) => {
+                    return (
+                      <Field>
+                        <FieldLabel htmlFor="Role">Role</FieldLabel>
+                        <CommonSelect
+                          options={roleDropDown.map(({ id, roleName }) => ({
+                            label: roleName,
+                            value: id,
+                          }))}
+                          value={field.value ? field.value.toString() : "0"}
+                          onChange={(value) => {
+                            console.log(value);
+                            return field.onChange(Number(value));
+                          }}
+                          placeholder="Select a role"
+                        />
+
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                />
+              </div>
+
               <div className="grid gap-2">
                 <Controller
                   name="password"

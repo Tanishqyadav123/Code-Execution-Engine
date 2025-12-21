@@ -3,6 +3,7 @@ export interface createNewUserType {
   lastName: string;
   email: string;
   password: string;
+  roleId: number;
 }
 
 export interface JwtPayloadType {

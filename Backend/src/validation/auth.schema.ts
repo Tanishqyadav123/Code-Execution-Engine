@@ -9,6 +9,7 @@ export const signUpSchema = z.object({
     .regex(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/, {
       error: "Password is not strong",
     }),
+  roleId: z.number().positive(),
 });
 
 export const signInSchema = z.object({
