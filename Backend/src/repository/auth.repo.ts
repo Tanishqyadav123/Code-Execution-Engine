@@ -23,5 +23,13 @@ export const getUserDetails = async (userId: string) => {
     where: {
       id: userId,
     },
+    include: {
+      RoleDetails: {
+        select: {
+          id: true,
+          roleName: true,
+        },
+      },
+    },
   });
 };

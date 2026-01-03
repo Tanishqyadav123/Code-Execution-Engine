@@ -7,4 +7,8 @@ export interface LoggedInUserType {
   password: string;
   createdAt: string;
   updatdAt: string;
+  RoleDetails: {
+        id: number;
+        roleName: string;
+    };
 }

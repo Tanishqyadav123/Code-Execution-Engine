@@ -39,7 +39,7 @@ export function CommonSelect({
         <SelectGroup>
           {options.map(({ label, value }) => {
             return (
-              <SelectItem key={label} value={value.toString()}>
+              <SelectItem key={value} value={value.toString()}>
                 {label}
               </SelectItem>
             );

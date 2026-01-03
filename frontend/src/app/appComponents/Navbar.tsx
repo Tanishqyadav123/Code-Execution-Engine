@@ -1,6 +1,14 @@
 "use client";
 
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
+import {
+  Calendar,
+  Home,
+  Inbox,
+  LucideProps,
+  Search,
+  Settings,
+  Bug,
+} from "lucide-react";
 
 import {
   Sidebar,
@@ -17,16 +25,58 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import appLogo from "../../../public/logos/appLogo.png";
 import { useAuth } from "../context/auth.context";
-import { useEffect } from "react";
-const items = [
+import React, { useEffect } from "react";
+import { RoleType } from "../entity/role.enum";
+let itemsForSolver: {
+  title: string;
+  url: string;
+  icon: React.ForwardRefExoticComponent<
+    Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>
+  >;
+}[] = [
   {
     title: "Dashboard",
-    url: "#",
+    url: "/",
     icon: Home,
   },
   {
     title: "Problems",
+    url: "/problems",
+    icon: Inbox,
+  },
+
+  {
+    title: "Submissions",
     url: "#",
+    icon: Calendar,
+  },
+  {
+    title: "Search",
+    url: "#",
+    icon: Search,
+  },
+  {
+    title: "Settings",
+    url: "#",
+    icon: Settings,
+  },
+];
+
+let itemsForProblemSetter: {
+  title: string;
+  url: string;
+  icon: React.ForwardRefExoticComponent<
+    Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>
+  >;
+}[] = [
+  {
+    title: "Dashboard",
+    url: "/",
+    icon: Home,
+  },
+  {
+    title: "Problems",
+    url: "/problems",
     icon: Inbox,
   },
   {
@@ -80,16 +130,27 @@ export function Navbar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {userDetails.RoleDetails.roleName === RoleType.PROBLEM_SETTER
+                ? itemsForProblemSetter.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <a href={item.url}>
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </a>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))
+                : itemsForSolver.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <a href={item.url}>
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </a>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

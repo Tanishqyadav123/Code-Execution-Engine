@@ -1,1 +1,3 @@
-export const allowedPathName = ["/" , "/code"];
+export const allowedPathName = ["/", "/code", "/problems"];
+
+

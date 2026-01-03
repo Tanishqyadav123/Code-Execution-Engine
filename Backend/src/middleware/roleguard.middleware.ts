@@ -16,6 +16,6 @@ export const RoleGuard = asyncHandler(
       return errorHandler(res, "Not Allowed To access", 403);
     }
 
-    return true;
+    next()
   }
 );
