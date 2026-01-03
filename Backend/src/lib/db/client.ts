@@ -1,6 +1,10 @@
-import { PrismaClient } from "../../generated/prisma/client";
+// import { PrismaClient } from "../generated/prisma/client";
+
 import { PrismaPg } from "@prisma/adapter-pg";
+import { Prisma, PrismaClient } from "../../src/generated/prisma/client";
 // Create a singleton :-
+
+export type PrismaTransactionalClient = Prisma.TransactionClient;
 
 const connectionString = `${process.env.DATABASE_URL}`;
 const adapter = new PrismaPg({
@@ -17,7 +21,6 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 const prisma = globalForPrisma.prisma ?? prismaSingleton();
-
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
 }

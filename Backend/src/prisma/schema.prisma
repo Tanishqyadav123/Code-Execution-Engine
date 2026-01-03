@@ -41,6 +41,7 @@ model Role {
 // Problems Schema :-
 model Problem {
    id        Int       @id @default(autoincrement())
+   name      String
    statement String
    level     LevelEnum
    createdBy String
@@ -52,6 +53,9 @@ model Problem {
 
    Submissions    Submission[]
    inputTestCases InputTestCases[]
+
+   // Creating the indexing :-
+   @@index([name])
 }
 
 model Submission {
@@ -73,6 +77,7 @@ model InputTestCases {
    id        Int      @id @default(autoincrement())
    problemId Int
    testCase  String
+   hidden    Boolean
    createdAt DateTime @default(now())
    updatedAt DateTime @default(now())
 
@@ -107,12 +112,9 @@ model TrackTestCaseResponse {
    UserDetails   User           @relation(fields: [userId], references: [id])
 }
 
-
-
 // Schema for Contest :-
 
 // TODO :-
-
 
 // Enum Specifying
 
