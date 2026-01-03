@@ -25,13 +25,16 @@ export const authMiddleware = asyncHandler(
       where: {
         id: payload.id,
       },
+      include: {
+        RoleDetails: true,
+      },
     });
 
     if (!userDetails) {
       return errorHandler(res, "user details not found", 401);
     }
 
-    req.user = payload;
+    req.user = { ...payload, roleId: userDetails.roleId };
 
     next();
   }

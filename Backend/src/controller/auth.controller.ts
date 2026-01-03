@@ -69,6 +69,8 @@ export const signInUser = asyncHandler(
     const accessToken = generateAccessToken({
       email: isUserExist.email,
       id: isUserExist.id,
+      roleId: isUserExist.roleId,
+      roleName: isUserExist.RoleDetails.roleName,
     });
 
     return responseHandler(res, "Login Successfully", 200, {

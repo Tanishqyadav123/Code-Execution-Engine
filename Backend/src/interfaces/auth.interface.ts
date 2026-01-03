@@ -9,4 +9,6 @@ export interface createNewUserType {
 export interface JwtPayloadType {
   id: string;
   email: string;
+  roleId: number;
+  roleName: string;
 }

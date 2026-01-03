@@ -6,6 +6,9 @@ export const isEmailExist = async (email: string) => {
     where: {
       email,
     },
+    include: {
+      RoleDetails: true,
+    },
   });
 };
 
