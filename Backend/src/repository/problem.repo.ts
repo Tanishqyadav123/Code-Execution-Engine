@@ -61,3 +61,18 @@ export const addProblemToDb = async (
     return problemId;
   });
 };
+
+export const getAllProblemList = async () => {
+  const allProblems = await prisma.problem.findMany({
+    include: {
+      creatorDetails: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+    },
+  });
+  return allProblems;
+};

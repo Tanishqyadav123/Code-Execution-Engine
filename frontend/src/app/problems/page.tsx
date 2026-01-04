@@ -11,10 +11,13 @@ import { Button } from "@/components/ui/button";
 import { useDebounce } from "../hooks/useDebounce";
 import { SingleProblemInterface } from "../interface/ProblemTable.interface";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../context/auth.context";
+import { RoleType } from "../entity/role.enum";
 function page() {
   const [difficulties, setDifficulties] = useState(difficultyOptions);
   const [search, setSearch] = useState("");
   const [difficultyLevel, setDifficultLevel] = useState("");
+  const {userDetails} = useAuth()
   const router = useRouter();
 
   let problems: SingleProblemInterface[] = [
@@ -101,9 +104,9 @@ function page() {
               placeholder="Select the Difficulty Level"
             />
           </div>
-          <Button onClick={() => router.push("add-problem")}>
+          { userDetails?.RoleDetails.roleName === RoleType.PROBLEM_SETTER && <Button onClick={() => router.push("add-problem")}>
             <span className="text-xl">+</span> New Problem
-          </Button>
+          </Button>}
         </div>
 
         <div className="problem-table mt-5 w-full h-full">

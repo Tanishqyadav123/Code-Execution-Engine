@@ -4,6 +4,7 @@ import { responseHandler } from "../handler/response.handler";
 import prisma from "../lib/db/client";
 import {
   addProblemToDb,
+  getAllProblemList,
   IsProblemNameAlreadyExist,
 } from "../repository/problem.repo";
 import { addNewProblemSchema } from "../validation/problem.schema";
@@ -33,4 +34,13 @@ export const addNewProblem = asyncHandler(async (req, res) => {
   return responseHandler(res, "Problem added successfully", 201, {
     problem: problemId,
   });
+});
+
+// Controller for get All Problem Listing API :-
+export const getAllProblems = asyncHandler(async (req, res) => {
+  const userId = req.user?.id;
+
+  const allProblems = await getAllProblemList();
+
+  return responseHandler(res, "All Problem listing", 200, {allProblems});
 });
