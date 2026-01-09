@@ -7,6 +7,7 @@ import {
   getAllProblemList,
   IsProblemNameAlreadyExist,
 } from "../repository/problem.repo";
+import { CommonPaginationQuerySchema } from "../validation/pagination.schema";
 import { addNewProblemSchema } from "../validation/problem.schema";
 
 export const addNewProblem = asyncHandler(async (req, res) => {
@@ -39,8 +40,16 @@ export const addNewProblem = asyncHandler(async (req, res) => {
 // Controller for get All Problem Listing API :-
 export const getAllProblems = asyncHandler(async (req, res) => {
   const userId = req.user?.id;
+  const { success, data } = CommonPaginationQuerySchema.safeParse(req.query);
 
-  const allProblems = await getAllProblemList();
+  if (!success) {
+    errorHandler(res, "Invalid Query Schema", 400);
+    return;
+  }
 
-  return responseHandler(res, "All Problem listing", 200, {allProblems});
+  console.log({ data });
+
+  const allProblems = await getAllProblemList(data);
+
+  return responseHandler(res, "All Problem listing", 200, { allProblems });
 });

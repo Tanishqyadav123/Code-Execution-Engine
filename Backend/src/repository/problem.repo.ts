@@ -1,4 +1,12 @@
 import prisma, { PrismaTransactionalClient } from "../lib/db/client";
+import { Prisma } from "../src/generated/prisma/client";
+import { QueryMode } from "../src/generated/prisma/internal/prismaNamespace";
+import {
+  buildMetaOffset,
+  getTotalProblems,
+  withPagination,
+} from "../utils/pagination.utils";
+import { CommonPaginationQuerySchemaType } from "../validation/pagination.schema";
 import { AddNewProblemSchemaType } from "../validation/problem.schema";
 
 export const IsProblemNameAlreadyExist = async (name: string) => {
@@ -62,7 +70,47 @@ export const addProblemToDb = async (
   });
 };
 
-export const getAllProblemList = async () => {
+export const getAllProblemList = async ({
+  limit,
+  page,
+  search,
+}: CommonPaginationQuerySchemaType) => {
+  const offset = (page - 1) * limit;
+
+  let conditions: Prisma.ProblemWhereInput[] = [];
+  if (search) {
+    let ORConditions = [];
+
+    let searchConditionForProblemName = {
+      name: {
+        contains: search,
+        mode: QueryMode.insensitive,
+      },
+    };
+
+    let searchConditionForCreatorName = {
+      creatorDetails: {
+        OR: [
+          {
+            firstName: {
+              contains: search,
+              mode: QueryMode.insensitive,
+            },
+          },
+          {
+            lastName: {
+              contains: search,
+              mode: QueryMode.insensitive,
+            },
+          },
+        ],
+      },
+    };
+
+    ORConditions.push(searchConditionForProblemName);
+    ORConditions.push(searchConditionForCreatorName);
+    conditions.push({ OR: ORConditions });
+  }
   const allProblems = await prisma.problem.findMany({
     include: {
       creatorDetails: {
@@ -73,6 +121,18 @@ export const getAllProblemList = async () => {
         },
       },
     },
+    where: conditions.length ? { AND: conditions } : undefined,
+    skip: offset,
+    take: limit,
   });
-  return allProblems;
+
+  const total = await getTotalProblems(conditions);
+
+  const meta = buildMetaOffset({
+    page,
+    limit,
+    total,
+  });
+
+  return withPagination(allProblems, meta);
 };
