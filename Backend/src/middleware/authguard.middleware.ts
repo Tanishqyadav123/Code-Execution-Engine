@@ -3,40 +3,61 @@ import { asyncHandler } from "../handler/async.handler";
 import { errorHandler } from "../handler/error.handler";
 import { verifyAccessToken } from "../utils/jwt.utils";
 import prisma from "../lib/db/client";
+import jwt from "jsonwebtoken";
 
 export const authMiddleware = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     // Extract the token :-
-    const token = extractTheToken(req);
+    try {
+      const token = extractTheToken(req);
 
-    if (!token) {
-      return errorHandler(res, "Token not provided", 401);
+      if (!token) {
+        return errorHandler(res, "Token not provided", 401);
+      }
+
+      // Verify the token :-
+      const payload = verifyAccessToken(token);
+
+      if (!payload.id) {
+        return errorHandler(res, "Invalid Payload in token", 401);
+      }
+
+      // Check if the user present in db :-
+      const userDetails = await prisma.user.findUnique({
+        where: {
+          id: payload.id,
+        },
+        include: {
+          RoleDetails: true,
+        },
+      });
+
+      if (!userDetails) {
+        return errorHandler(res, "user details not found", 401);
+      }
+
+      req.user = { ...payload, roleId: userDetails.roleId };
+
+      next();
+    } catch (error) {
+      let message = "Token Not Found";
+      console.log(error);
+
+      console.log(
+        error instanceof jwt.JsonWebTokenError,
+        error instanceof jwt.NotBeforeError,
+        error instanceof jwt.TokenExpiredError
+      );
+      if (
+        error instanceof jwt.JsonWebTokenError ||
+        error instanceof jwt.NotBeforeError ||
+        error instanceof jwt.TokenExpiredError
+      ) {
+        message = error.message;
+      }
+
+      return errorHandler(res, message, 401);
     }
-
-    // Verify the token :-
-    const payload = verifyAccessToken(token);
-
-    if (!payload.id) {
-      return errorHandler(res, "Invalid Payload in token", 401);
-    }
-
-    // Check if the user present in db :-
-    const userDetails = await prisma.user.findUnique({
-      where: {
-        id: payload.id,
-      },
-      include: {
-        RoleDetails: true,
-      },
-    });
-
-    if (!userDetails) {
-      return errorHandler(res, "user details not found", 401);
-    }
-
-    req.user = { ...payload, roleId: userDetails.roleId };
-
-    next();
   }
 );
 

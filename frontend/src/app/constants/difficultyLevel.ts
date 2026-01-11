@@ -1,6 +1,6 @@
 export const difficultyOptions = [
-  { label: "All", value: "ALL" },
-  { label: "Easy", value: "EASY" },
-  { label: "Medium", value: "MEDIUM" },
-  { label: "Hard", value: "HARD" },
+  { label: "All", value: "All" },
+  { label: "Easy", value: "Easy" },
+  { label: "Medium", value: "Medium" },
+  { label: "God", value: "God" },
 ];

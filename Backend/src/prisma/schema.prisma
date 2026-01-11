@@ -119,9 +119,9 @@ model TrackTestCaseResponse {
 // Enum Specifying
 
 enum LevelEnum {
-   Low
+   Easy
    Medium
-   High
+   Hard
    God
 }
 

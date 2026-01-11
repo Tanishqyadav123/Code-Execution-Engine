@@ -7,7 +7,10 @@ import {
   withPagination,
 } from "../utils/pagination.utils";
 import { CommonPaginationQuerySchemaType } from "../validation/pagination.schema";
-import { AddNewProblemSchemaType } from "../validation/problem.schema";
+import {
+  AddNewProblemSchemaType,
+  GetAllProblemListSchemaType,
+} from "../validation/problem.schema";
 
 export const IsProblemNameAlreadyExist = async (name: string) => {
   return (await prisma.problem.findFirst({
@@ -74,7 +77,8 @@ export const getAllProblemList = async ({
   limit,
   page,
   search,
-}: CommonPaginationQuerySchemaType) => {
+  level,
+}: GetAllProblemListSchemaType) => {
   const offset = (page - 1) * limit;
 
   let conditions: Prisma.ProblemWhereInput[] = [];
@@ -111,6 +115,13 @@ export const getAllProblemList = async ({
     ORConditions.push(searchConditionForCreatorName);
     conditions.push({ OR: ORConditions });
   }
+
+  if (level) {
+    const levelConditions = {
+      level: level,
+    };
+    conditions.push(levelConditions);
+  }
   const allProblems = await prisma.problem.findMany({
     include: {
       creatorDetails: {
@@ -122,6 +133,9 @@ export const getAllProblemList = async ({
       },
     },
     where: conditions.length ? { AND: conditions } : undefined,
+    orderBy: {
+      id: "desc",
+    },
     skip: offset,
     take: limit,
   });

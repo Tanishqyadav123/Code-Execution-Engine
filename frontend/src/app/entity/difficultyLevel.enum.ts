@@ -1,6 +1,7 @@
 export enum DifficultyLevelEnum {
-  LOW = "Low",
+  All = "All",
+  Easy = "Easy",
   MEDIUM = "Medium",
-  HIGH = "High",
+  Hard = "Hard",
   GOD = "God",
 }

@@ -10,9 +10,9 @@
 */
 
 export const LevelEnum = {
-  Low: 'Low',
+  Easy: 'Easy',
   Medium: 'Medium',
-  High: 'High',
+  Hard: 'Hard',
   God: 'God'
 } as const
 

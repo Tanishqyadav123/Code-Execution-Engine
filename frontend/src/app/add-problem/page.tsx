@@ -20,13 +20,16 @@ import { Button } from "@/components/ui/button";
 import { CommonSelect } from "../appComponents/Select.Common";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
+import { addNewProblemService } from "../services/problem.service";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 function page() {
   const form = useForm<AddNewProblemSchemaType>({
     resolver: zodResolver(addNewProblemSchema),
     mode: "onSubmit",
     defaultValues: {
-      level: DifficultyLevelEnum.LOW,
+      level: DifficultyLevelEnum.All,
       name: "",
       statement: "",
       testCases: [
@@ -41,13 +44,28 @@ function page() {
     },
   });
 
+  const router = useRouter();
+
   const { append, fields, remove } = useFieldArray({
     name: "testCases",
     control: form.control,
   });
 
-  const onSubmit = (data: AddNewProblemSchemaType) => {
-    console.log(data, " data is");
+  const onSubmit = async (data: AddNewProblemSchemaType) => {
+    try {
+      const responseData = await addNewProblemService(data);
+
+      if (responseData.success) {
+        toast.success(responseData.message);
+        router.push("/problems");
+      }
+    } catch (error: any) {
+      if (error?.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Add New Problem Attempt Fail");
+      }
+    }
   };
   return (
     <div className=" flex  gap-5 h-screen w-[90vw] ">
@@ -119,7 +137,7 @@ function page() {
                           value={
                             field.value
                               ? field.value.toString()
-                              : DifficultyLevelEnum.LOW
+                              : DifficultyLevelEnum.All
                           }
                           onChange={(value) => {
                             console.log(value);
@@ -258,9 +276,11 @@ function page() {
                 </div>
                 <Input id="password" type="password" required />
               </div> */}
-            <Button type="submit" className="w-full">
-              Create
-            </Button>
+            <div className="mx-auto my-5">
+              <Button type="submit" className="w-[20vw]">
+                Create
+              </Button>
+            </div>
           </div>
         </form>
       </div>

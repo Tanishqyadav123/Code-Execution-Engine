@@ -20,9 +20,10 @@ export function TableCommon({
   tableCaption,
 }: {
   columnName: ColumnNameInterface[];
-  problems: any[];
+  problems: SingleProblemInterface[];
   tableCaption?: string;
 }) {
+  console.log("Problems are  ", problems);
   const router = useRouter();
 
   return (
@@ -46,15 +47,15 @@ export function TableCommon({
             className="h-[10vh] cursor-pointer"
             key={problem.id}
           >
-            <TableCell className="font-medium">{problem.difficulty}</TableCell>
-            <TableCell>{problem.addDate}</TableCell>
+            <TableCell className="font-medium">{problem.name}</TableCell>
             <TableCell>
-              {problem.problem.length > 50
-                ? problem.problem.slice(0, 50) + "..."
-                : problem.problem}
+              {problem.statement
+                ? problem.statement.slice(0, 50) + "..."
+                : problem.statement}
             </TableCell>
+            <TableCell>{problem.level}</TableCell>
             <TableCell className="text-right">
-              {problem.inContest ? "Yes" : "No"}
+              {problem.createdAt.split("T")[0]}
             </TableCell>
           </TableRow>
         ))}

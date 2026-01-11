@@ -9,73 +9,75 @@ import { difficultyOptions } from "../constants/difficultyLevel";
 import { CommonSelect } from "../appComponents/Select.Common";
 import { Button } from "@/components/ui/button";
 import { useDebounce } from "../hooks/useDebounce";
-import { SingleProblemInterface } from "../interface/ProblemTable.interface";
+import {
+  getProblemPaginationType,
+  SingleProblemInterface,
+} from "../interface/ProblemTable.interface";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../context/auth.context";
 import { RoleType } from "../entity/role.enum";
+import { getProblemListService } from "../services/problem.service";
+import { DifficultyLevelEnum } from "../entity/difficultyLevel.enum";
+import { DynamicPagination } from "../appComponents/DynamicPagination";
 function page() {
-  const [difficulties, setDifficulties] = useState(difficultyOptions);
+  const [difficulties, setDifficulties] = useState(
+    Object.values(DifficultyLevelEnum).map((value) => ({
+      value: value,
+      label: value,
+    }))
+  );
   const [search, setSearch] = useState("");
   const [difficultyLevel, setDifficultLevel] = useState("");
-  const {userDetails} = useAuth()
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [hasNextPage, setHasNextPage] = useState(true);
+  const [hasPrevPage, setHasPrevPage] = useState(true);
+
+  const [problems, setProblems] = useState<SingleProblemInterface[]>([]);
+  const { userDetails } = useAuth();
   const router = useRouter();
 
-  let problems: SingleProblemInterface[] = [
-    {
-      id: 1,
-      difficulty: "Easy",
-      addDate: "2025-01-01",
-      problem: "Two Sum Variants",
-      inContest: true,
-    },
-    {
-      id: 2,
-      difficulty: "Medium",
-      addDate: "2025-01-03",
-      problem: "Maximum Subarray Sum",
-      inContest: false,
-    },
-    {
-      id: 3,
-      difficulty: "Hard",
-      addDate: "2025-01-05",
-      problem: "Graph Shortest Path",
-      inContest: true,
-    },
-    {
-      id: 4,
-      difficulty: "Easy",
-      addDate: "2025-01-07",
-      problem: "Array Rotation",
-      inContest: false,
-    },
-    {
-      id: 5,
-      difficulty: "Medium",
-      addDate: "2025-01-10",
-      problem: "Binary Search on Answer",
-      inContest: true,
-    },
-    {
-      id: 6,
-      difficulty: "Hard",
-      addDate: "2025-01-12",
-      problem: "Dynamic Programming on Trees",
-      inContest: false,
-    },
-    {
-      id: 7,
-      difficulty: "Medium",
-      addDate: "2025-01-15",
-      problem: "Greedy Interval Scheduling",
-      inContest: true,
-    },
-  ];
   const debouncedValue = useDebounce(search, 500);
 
+  const getProblemData = async ({
+    limit,
+    page,
+    difficultyLevel,
+    search,
+  }: getProblemPaginationType) => {
+    try {
+      const responseData = await getProblemListService({
+        limit,
+        page,
+        difficultyLevel,
+        search,
+      });
+
+      if (responseData.data && responseData.data && responseData.success) {
+        setProblems(responseData.data.data);
+
+        if (responseData.data.meta) {
+          console.log("meta ", { meta: responseData.data.meta });
+          setHasNextPage(responseData.data.meta.hasNextPage);
+          setHasPrevPage(responseData.data.meta.hasPrevPage);
+          setTotalPage(responseData.data.meta.totalPages);
+          setCurrentPage(responseData.data.meta.page);
+          setLimit(responseData.data.meta.perPage);
+        }
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
   useEffect(() => {
-    console.log({ debouncedValue, difficultyLevel }, "Print");
-  }, [debouncedValue, difficultyLevel]);
+    getProblemData({
+      page: currentPage,
+      limit,
+      difficultyLevel,
+      search: debouncedValue,
+    });
+  }, [debouncedValue, difficultyLevel, currentPage]);
   return (
     <div className=" flex justify-between gap-5 h-screen w-[90vw] ">
       <Navbar />
@@ -104,34 +106,43 @@ function page() {
               placeholder="Select the Difficulty Level"
             />
           </div>
-          { userDetails?.RoleDetails.roleName === RoleType.PROBLEM_SETTER && <Button onClick={() => router.push("add-problem")}>
-            <span className="text-xl">+</span> New Problem
-          </Button>}
+          {userDetails?.RoleDetails.roleName === RoleType.PROBLEM_SETTER && (
+            <Button onClick={() => router.push("add-problem")}>
+              <span className="text-xl">+</span> New Problem
+            </Button>
+          )}
         </div>
 
         <div className="problem-table mt-5 w-full h-full">
           <TableCommon
             columnName={[
               {
-                name: "Difficulty",
+                name: "Name",
                 className: "w-[300px]",
               },
               {
-                name: "Add Date",
+                name: "Statement",
                 className: "w-[300px]",
               },
               {
-                name: "Problem",
+                name: "Level",
                 className: "w-[300px]",
               },
               {
-                name: "In Contest",
+                name: "AddDate",
                 className: "text-right",
               },
             ]}
             problems={problems}
             tableCaption="List of Problems"
           />
+          <div className=" mt-12 ">
+            <DynamicPagination
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalPage={totalPage}
+            />
+          </div>
         </div>
       </div>
     </div>
