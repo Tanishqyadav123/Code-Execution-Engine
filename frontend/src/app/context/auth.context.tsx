@@ -71,12 +71,20 @@ export const AuthContextProvider = ({
     // Extract the token (auth) from localStorage :-
     initailizeAuth();
     const accessToken = localStorage.getItem("accessToken");
-    console.log(allowedPathName, pathName, accessToken);
+    console.log(allowedPathName, pathName, accessToken, "printing");
 
-    if (allowedPathName.includes(pathName) && !accessToken) {
+    if (
+      (allowedPathName.includes(pathName) ||
+        pathName.startsWith("/problems")) &&
+      !accessToken
+    ) {
       setIsAuth(false);
       router.push("/sign-in");
-    } else if (!allowedPathName.includes(pathName) && accessToken) {
+    } else if (
+      !allowedPathName.includes(pathName) &&
+      !pathName.startsWith("/problems") &&
+      accessToken
+    ) {
       setIsAuth(true);
       router.push("/");
     } else {

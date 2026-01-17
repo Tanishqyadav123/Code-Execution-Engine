@@ -1,3 +1,4 @@
+import { TestCaseType } from "../interface/problem.interface";
 import { SingleProblemInterface } from "../interface/ProblemTable.interface";
 
 export interface addNewProblemResponseType {
@@ -17,4 +18,8 @@ export interface MetaOffSetType {
   totalPages: number;
   hasNextPage: boolean;
   hasPrevPage: boolean;
+}
+
+export interface GetSingleProblemWithTestCases extends SingleProblemInterface {
+  testCases: TestCaseType[];
 }

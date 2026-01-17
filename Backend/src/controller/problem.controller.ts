@@ -1,10 +1,14 @@
+import { LevelEnumType } from "../entity/Level.enum";
+import { LevelEnum } from "../generated/prisma/enums";
 import { asyncHandler } from "../handler/async.handler";
 import { errorHandler } from "../handler/error.handler";
 import { responseHandler } from "../handler/response.handler";
-import prisma from "../lib/db/client";
+import { TestCaseType } from "../interfaces/problem.interface";
+
 import {
   addProblemToDb,
   getAllProblemList,
+  getProblemByIdService,
   IsProblemNameAlreadyExist,
 } from "../repository/problem.repo";
 import {
@@ -53,4 +57,61 @@ export const getAllProblems = asyncHandler(async (req, res) => {
   const allProblems = await getAllProblemList(data);
 
   return responseHandler(res, "All Problem listing", 200, allProblems);
+});
+
+// Controller for getting the problem by Id :-
+export const getProblemById = asyncHandler(async (req, res) => {
+  const problemId = req.params.id;
+
+  if (!problemId || isNaN(Number(problemId))) {
+    return errorHandler(
+      res,
+      "Problem Id is not provided or may be invalid",
+      400
+    );
+  }
+
+  // Find the problem by id:-
+  let problemDetails = await getProblemByIdService(Number(problemId));
+
+  if (!problemDetails) {
+    return errorHandler(res, "Problem not found", 404);
+  }
+
+  let updatedProblemDetails: {
+    level: LevelEnumType;
+    id: number;
+    name: string;
+    statement: string;
+    createdBy: string;
+    createdAt: Date;
+    updatedAt: Date;
+    testCases: TestCaseType[];
+  };
+
+  let testCases: TestCaseType[] = [];
+  problemDetails.inputTestCases.forEach(
+    ({ hidden, testCase, outputTestCases, id }) => {
+      testCases.push({
+        inputCase: {
+          id,
+          hidden,
+          testCase,
+        },
+        outputCase: {
+          id: outputTestCases[0].id,
+          testCase: outputTestCases[0].testCase,
+        },
+      });
+    }
+  );
+
+  const { inputTestCases, ...rest } = problemDetails;
+  updatedProblemDetails = {
+    ...rest,
+    testCases,
+    level: rest.level as LevelEnumType,
+  };
+
+  return responseHandler(res, "Problem Details", 200, updatedProblemDetails);
 });

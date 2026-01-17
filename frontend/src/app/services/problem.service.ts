@@ -5,6 +5,7 @@ import { ApiResponse } from "../types/api";
 import {
   addNewProblemResponseType,
   GetAllProblemsResponseType,
+  GetSingleProblemWithTestCases,
 } from "../types/problem.response.type";
 import {
   getProblemPaginationType,
@@ -55,4 +56,15 @@ export const addNewProblemService = async (
   );
 
   return response.data as ApiResponse<addNewProblemResponseType>;
+};
+
+export const getProblemByIdService = async (problemId: number) => {
+  console.log({ problemId });
+  const response = await axios.get(`${BACKEND_BASE_URL}/problem/${problemId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data as ApiResponse<GetSingleProblemWithTestCases>;
 };

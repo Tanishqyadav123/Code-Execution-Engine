@@ -150,3 +150,25 @@ export const getAllProblemList = async ({
 
   return withPagination(allProblems, meta);
 };
+
+export const getProblemByIdService = async (problemId: number) => {
+  return await prisma.problem.findUnique({
+    where: {
+      id: problemId,
+    },
+    include: {
+      inputTestCases: {
+        include: {
+          outputTestCases: true,
+        },
+      },
+      creatorDetails: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+    },
+  });
+};

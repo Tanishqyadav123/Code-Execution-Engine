@@ -4,11 +4,13 @@ import { RoleGuard } from "../middleware/roleguard.middleware";
 import {
   addNewProblem,
   getAllProblems,
+  getProblemById,
 } from "../controller/problem.controller";
 
 const router = Router();
 
 router.post("/", authMiddleware, RoleGuard, addNewProblem);
 router.get("/", authMiddleware, getAllProblems);
+router.get("/:id", authMiddleware, getProblemById);
 
 export default router;

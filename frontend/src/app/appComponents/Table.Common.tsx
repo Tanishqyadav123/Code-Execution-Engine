@@ -23,7 +23,7 @@ export function TableCommon({
   problems: SingleProblemInterface[];
   tableCaption?: string;
 }) {
-  console.log("Problems are  ", problems);
+  
   const router = useRouter();
 
   return (
